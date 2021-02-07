@@ -299,18 +299,18 @@ class RolloutBuffer(BaseBuffer):
         self.reset()
 
     def reset(self) -> None:
-        self.observations = np.zeros((self.buffer_size, self.n_envs) + self.obs_shape, dtype=np.float32)
-        self.actions = np.zeros((self.buffer_size, self.n_envs, self.action_dim), dtype=np.float32)
-        self.rewards = np.zeros((self.buffer_size, self.n_envs), dtype=np.float32)
-        self.returns = np.zeros((self.buffer_size, self.n_envs), dtype=np.float32)
-        self.dones = np.zeros((self.buffer_size, self.n_envs), dtype=np.float32)
-        self.values = np.zeros((self.buffer_size, self.n_envs), dtype=np.float32)
-        self.log_probs = np.zeros((self.buffer_size, self.n_envs), dtype=np.float32)
-        self.advantages = np.zeros((self.buffer_size, self.n_envs), dtype=np.float32)
+        self.observations = th.zeros((self.buffer_size, self.n_envs) + self.obs_shape, dtype=th.float32).to(self.device)
+        self.actions = th.zeros((self.buffer_size, self.n_envs, self.action_dim), dtype=th.float32).to(self.device)
+        self.rewards = th.zeros((self.buffer_size, self.n_envs), dtype=th.float32).to(self.device)
+        self.returns = th.zeros((self.buffer_size, self.n_envs), dtype=th.float32).to(self.device)
+        self.dones = th.zeros((self.buffer_size, self.n_envs), dtype=th.float32).to(self.device)
+        self.values = th.zeros((self.buffer_size, self.n_envs), dtype=th.float32).to(self.device)
+        self.log_probs = th.zeros((self.buffer_size, self.n_envs), dtype=th.float32).to(self.device)
+        self.advantages = th.zeros((self.buffer_size, self.n_envs), dtype=th.float32).to(self.device)
         self.generator_ready = False
         super(RolloutBuffer, self).reset()
 
-    def compute_returns_and_advantage(self, last_values: th.Tensor, dones: np.ndarray) -> None:
+    def compute_returns_and_advantage(self, last_values: th.Tensor, dones: th.Tensor) -> None:
         """
         Post-processing step: compute the returns (sum of discounted rewards)
         and GAE advantage.
@@ -342,7 +342,7 @@ class RolloutBuffer(BaseBuffer):
         self.returns = self.advantages + self.values
 
     def add(
-        self, obs: np.ndarray, action: np.ndarray, reward: np.ndarray, done: np.ndarray, value: th.Tensor, log_prob: th.Tensor
+        self, obs: th.Tensor, action: th.Tensor, reward: th.Tensor, done: th.Tensor, value: th.Tensor, log_prob: th.Tensor
     ) -> None:
         """
         :param obs: Observation
@@ -363,12 +363,12 @@ class RolloutBuffer(BaseBuffer):
         if isinstance(self.observation_space, spaces.Discrete):
             obs = obs.reshape((self.n_envs,) + self.obs_shape)
 
-        self.observations[self.pos] = np.array(obs).copy()
-        self.actions[self.pos] = np.array(action).copy()
-        self.rewards[self.pos] = np.array(reward).copy()
-        self.dones[self.pos] = np.array(done).copy()
-        self.values[self.pos] = value.clone().cpu().numpy().flatten()
-        self.log_probs[self.pos] = log_prob.clone().cpu().numpy()
+        self.observations[self.pos] = obs
+        self.actions[self.pos] = action
+        self.rewards[self.pos] = reward
+        self.dones[self.pos] = done
+        self.values[self.pos] = value.clone().flatten().to(self.device)
+        self.log_probs[self.pos] = log_prob.clone().to(self.device)
         self.pos += 1
         if self.pos == self.buffer_size:
             self.full = True
@@ -391,7 +391,7 @@ class RolloutBuffer(BaseBuffer):
             yield self._get_samples(indices[start_idx : start_idx + batch_size])
             start_idx += batch_size
 
-    def _get_samples(self, batch_inds: np.ndarray, env: Optional[VecNormalize] = None) -> RolloutBufferSamples:
+    def _get_samples(self, batch_inds: th.Tensor, env: Optional[VecNormalize] = None) -> RolloutBufferSamples:
         data = (
             self.observations[batch_inds],
             self.actions[batch_inds],
