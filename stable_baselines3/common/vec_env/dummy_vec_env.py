@@ -35,9 +35,10 @@ class DummyVecEnv(VecEnv):
             [
                 (
                     k,
-                    torch.zeros((self.num_envs,) + tuple(shapes[k]), dtype=dtypes[k]).to(device)
-                    )
-
+                    torch.from_numpy(
+                        np.zeros((self.num_envs,) + tuple(shapes[k]), dtype=dtypes[k])
+                    ).to(device),
+                )
                 for k in self.keys
             ]
         )
