@@ -6,6 +6,7 @@ from typing import Any, Dict, List, Tuple
 
 import gym
 import numpy as np
+import torch as th
 
 from stable_baselines3.common.vec_env.base_vec_env import VecEnvObs
 
@@ -18,7 +19,7 @@ def copy_obs_dict(obs: Dict[str, np.ndarray]) -> Dict[str, np.ndarray]:
     :return: a dict of copied numpy arrays.
     """
     assert isinstance(obs, OrderedDict), f"unexpected type for observations '{type(obs)}'"
-    return OrderedDict([(k, np.copy(v)) for k, v in obs.items()])
+    return OrderedDict([(k, th.clone(v)) for k, v in obs.items()])
 
 
 def dict_to_obs(space: gym.spaces.Space, obs_dict: Dict[Any, np.ndarray]) -> VecEnvObs:
