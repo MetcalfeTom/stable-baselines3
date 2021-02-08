@@ -1,6 +1,7 @@
 from typing import Optional, Union
 
 import numpy as np
+import torch as th
 from gym import Env, Space
 from gym.spaces import Box, Discrete, MultiBinary, MultiDiscrete
 
@@ -136,15 +137,15 @@ class FakeImageEnv(Env):
         self.ep_length = 10
         self.current_step = 0
 
-    def reset(self) -> np.ndarray:
+    def reset(self) -> th.Tensor:
         self.current_step = 0
-        return self.observation_space.sample()
+        return th.from_numpy(self.observation_space.sample())
 
     def step(self, action: Union[np.ndarray, int]) -> GymStepReturn:
         reward = 0.0
         self.current_step += 1
         done = self.current_step >= self.ep_length
-        return self.observation_space.sample(), reward, done, {}
+        return th.from_numpy(self.observation_space.sample()), reward, done, {}
 
     def render(self, mode: str = "human") -> None:
         pass

@@ -377,7 +377,7 @@ class BaseAlgorithm(ABC):
         # Avoid resetting the environment when calling ``.learn()`` consecutive times
         if reset_num_timesteps or self._last_obs is None:
             self._last_obs = self.env.reset()
-            self._last_dones = np.zeros((self.env.num_envs,), dtype=bool)
+            self._last_dones = th.zeros((self.env.num_envs,), dtype=th.bool)
             # Retrieve unnormalized observation for saving into the buffer
             if self._vec_normalize_env is not None:
                 self._last_original_obs = self._vec_normalize_env.get_original_obs()
@@ -403,7 +403,7 @@ class BaseAlgorithm(ABC):
         :param infos:
         """
         if dones is None:
-            dones = np.array([False] * len(infos))
+            dones = th.tensor([False] * len(infos))
         for idx, info in enumerate(infos):
             maybe_ep_info = info.get("episode")
             maybe_is_success = info.get("is_success")

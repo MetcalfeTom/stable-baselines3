@@ -61,7 +61,7 @@ class BaseBuffer(ABC):
         shape = arr.shape
         if len(shape) < 3:
             shape = shape + (1,)
-        return arr.swapaxes(0, 1).reshape(shape[0] * shape[1], *shape[2:])
+        return th.transpose(arr, 0, 1).reshape(shape[0] * shape[1], *shape[2:])
 
     def size(self) -> int:
         """
@@ -124,6 +124,8 @@ class BaseBuffer(ABC):
             (may be useful to avoid changing things be reference)
         :return:
         """
+        if isinstance(array, th.Tensor):
+            return array
         if copy:
             return th.tensor(array).to(self.device)
         return th.as_tensor(array).to(self.device)
@@ -326,15 +328,15 @@ class RolloutBuffer(BaseBuffer):
 
         """
         # convert to numpy
-        last_values = last_values.clone().cpu().numpy().flatten()
+        last_values = last_values.clone().flatten()
 
         last_gae_lam = 0
         for step in reversed(range(self.buffer_size)):
             if step == self.buffer_size - 1:
-                next_non_terminal = 1.0 - dones
+                next_non_terminal = th.logical_not(dones)
                 next_values = last_values
             else:
-                next_non_terminal = 1.0 - self.dones[step + 1]
+                next_non_terminal = th.logical_not(self.dones[step + 1])
                 next_values = self.values[step + 1]
             delta = self.rewards[step] + self.gamma * next_values * next_non_terminal - self.values[step]
             last_gae_lam = delta + self.gamma * self.gae_lambda * next_non_terminal * last_gae_lam

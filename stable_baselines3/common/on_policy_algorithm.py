@@ -159,9 +159,14 @@ class OnPolicyAlgorithm(BaseAlgorithm):
                 actions, values, log_probs = self.policy.forward(obs_tensor)
             # Rescale and perform action
             clipped_actions = actions
+
             # Clip the actions to avoid out of bound error
             if isinstance(self.action_space, gym.spaces.Box):
-                clipped_actions = th.clip(actions, self.action_space.low, self.action_space.high)
+                highs = th.from_numpy(self.action_space.high)
+                lows = th.from_numpy(self.action_space.low)
+                clipped_actions = th.where(clipped_actions > highs, highs, clipped_actions)
+                clipped_actions = th.where(clipped_actions < lows, lows, clipped_actions)
+                # clipped_actions = th.clip(actions, self.action_space.low, self.action_space.high)
 
             new_obs, rewards, dones, infos = env.step(clipped_actions)
 

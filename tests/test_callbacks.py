@@ -4,6 +4,7 @@ import shutil
 import gym
 import numpy as np
 import pytest
+import torch as th
 
 from stable_baselines3 import A2C, DDPG, DQN, HER, PPO, SAC, TD3
 from stable_baselines3.common.bit_flipping_env import BitFlippingEnv
@@ -57,7 +58,14 @@ def test_callbacks(tmp_path, model_class):
     model.learn(500, callback=callback)
 
     # Check access to local variables
-    assert model.env.observation_space.contains(callback.locals["new_obs"][0])
+    x = callback.locals["new_obs"][0]
+    low = th.from_numpy(model.env.observation_space.low)
+    high =th.from_numpy(model.env.observation_space.high)
+    assert x.shape == model.env.observation_space.shape and th.all(x >= low) and th.all(x <= high)
+
+    # assert model.env.observation_space.contains(callback.locals["new_obs"][0])
+
+    # assert model.env.observation_space.contains(callback.locals["new_obs"][0])
     # Check that the child callback was called
     assert checkpoint_callback.locals["new_obs"] is callback.locals["new_obs"]
     assert event_callback.locals["new_obs"] is callback.locals["new_obs"]

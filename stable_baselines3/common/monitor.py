@@ -10,6 +10,7 @@ from typing import List, Optional, Tuple, Union
 import gym
 import numpy as np
 import pandas
+import torch as th
 
 from stable_baselines3.common.type_aliases import GymObs, GymStepReturn
 
@@ -100,7 +101,7 @@ class Monitor(gym.Wrapper):
             self.needs_reset = True
             ep_rew = sum(self.rewards)
             ep_len = len(self.rewards)
-            ep_info = {"r": round(ep_rew, 6), "l": ep_len, "t": round(time.time() - self.t_start, 6)}
+            ep_info = {"r": ep_rew, "l": ep_len, "t": round(time.time() - self.t_start, 6)}
             for key in self.info_keywords:
                 ep_info[key] = info[key]
             self.episode_rewards.append(ep_rew)

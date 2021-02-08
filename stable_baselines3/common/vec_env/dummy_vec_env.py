@@ -29,22 +29,26 @@ class DummyVecEnv(VecEnv):
         obs_space = env.observation_space
         self.keys, shapes, dtypes = obs_space_info(obs_space)
 
+        device = "cuda" if torch.cuda.is_available() else "cpu"
+
         self.buf_obs = OrderedDict(
             [
                 (
                     k,
                     torch.from_numpy(
                         np.zeros((self.num_envs,) + tuple(shapes[k]), dtype=dtypes[k])
-                    ).cuda(),
+                    ).to(device),
                 )
                 for k in self.keys
             ]
         )
-        self.buf_dones = torch.zeros((self.num_envs,), dtype=torch.bool).cuda()
-        self.buf_rews = torch.zeros((self.num_envs,), dtype=torch.float32).cuda()
+        self.buf_dones = torch.zeros((self.num_envs,), dtype=torch.bool).to(device)
+        self.buf_rews = torch.zeros((self.num_envs,), dtype=torch.float32).to(device)
         self.buf_infos = [{} for _ in range(self.num_envs)]
         self.actions = None
         self.metadata = env.metadata
+
+        self.logged_error = False
 
     def step_async(self, actions: np.ndarray) -> None:
         self.actions = actions
@@ -58,6 +62,12 @@ class DummyVecEnv(VecEnv):
                 # save final observation where user can get it, then reset
                 self.buf_infos[env_idx]["terminal_observation"] = obs
                 obs = self.envs[env_idx].reset()
+
+            if isinstance(obs, np.ndarray):
+                if not self.logged_error:
+                    print("ndarray passed")
+                    self.logged_error = True
+                obs = torch.from_numpy(obs)
             self._save_obs(env_idx, obs)
         return (self._obs_from_buf(), deepcopy(self.buf_rews), deepcopy(self.buf_dones), deepcopy(self.buf_infos))
 
@@ -98,6 +108,8 @@ class DummyVecEnv(VecEnv):
             return super().render(mode=mode)
 
     def _save_obs(self, env_idx: int, obs: VecEnvObs) -> None:
+        if isinstance(obs, np.ndarray):
+            obs = torch.from_numpy(obs)
         for key in self.keys:
             if key is None:
                 self.buf_obs[key][env_idx] = obs
@@ -105,7 +117,8 @@ class DummyVecEnv(VecEnv):
                 self.buf_obs[key][env_idx] = obs[key]
 
     def _obs_from_buf(self) -> VecEnvObs:
-        return dict_to_obs(self.observation_space, copy_obs_dict(self.buf_obs))
+        d = dict_to_obs(self.observation_space, copy_obs_dict(self.buf_obs))  # this returns arrays, even if the values are tensors
+        return torch.from_numpy(d)
 
     def get_attr(self, attr_name: str, indices: VecEnvIndices = None) -> List[Any]:
         """Return attribute from vectorized environment (see base class)."""
