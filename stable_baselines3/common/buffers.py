@@ -372,7 +372,6 @@ class RolloutBuffer(BaseBuffer):
         self.dones[self.pos] = done
         self.values[self.pos] = value.clone().flatten()
         self.log_probs[self.pos] = log_prob.clone()
-        print("observations each:", f"{[t.device for t in self.observations]}")
         print("observations:", f"{self.observations.device}")
 
         self.pos += 1
