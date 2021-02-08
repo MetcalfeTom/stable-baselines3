@@ -338,6 +338,8 @@ class RolloutBuffer(BaseBuffer):
             else:
                 next_non_terminal = th.logical_not(self.dones[step + 1])
                 next_values = self.values[step + 1]
+                
+            print(dones)
 
             delta = self.rewards[step] + self.gamma * next_values * next_non_terminal - self.values[step]
             last_gae_lam = delta + self.gamma * self.gae_lambda * next_non_terminal * last_gae_lam
