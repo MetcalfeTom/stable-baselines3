@@ -162,8 +162,8 @@ class OnPolicyAlgorithm(BaseAlgorithm):
 
             # Clip the actions to avoid out of bound error
             if isinstance(self.action_space, gym.spaces.Box):
-                highs = th.from_numpy(self.action_space.high)
-                lows = th.from_numpy(self.action_space.low)
+                highs = th.from_numpy(self.action_space.high).to(self.device)
+                lows = th.from_numpy(self.action_space.low).to(self.device)
                 clipped_actions = th.where(clipped_actions > highs, highs, clipped_actions)
                 clipped_actions = th.where(clipped_actions < lows, lows, clipped_actions)
                 # clipped_actions = th.clip(actions, self.action_space.low, self.action_space.high)
