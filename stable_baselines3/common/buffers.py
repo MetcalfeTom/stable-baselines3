@@ -373,7 +373,7 @@ class RolloutBuffer(BaseBuffer):
         self.values[self.pos] = value.clone().flatten()
         self.log_probs[self.pos] = log_prob.clone()
         print("observations each:", f"{[t.device for t in self.observations]}")
-        print("observations:", f"{self.observations.device}"))
+        print("observations:", f"{self.observations.device}")
 
         self.pos += 1
         if self.pos == self.buffer_size:
