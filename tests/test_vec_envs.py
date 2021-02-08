@@ -196,6 +196,7 @@ def test_vecenv_terminal_obs(vec_env_class, vec_env_wrapper):
     vec_env.close()
 
 
+
 SPACES = collections.OrderedDict(
     [
         ("discrete", gym.spaces.Discrete(2)),

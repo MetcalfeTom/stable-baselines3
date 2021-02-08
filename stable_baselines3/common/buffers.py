@@ -342,6 +342,7 @@ class RolloutBuffer(BaseBuffer):
             last_gae_lam = delta + self.gamma * self.gae_lambda * next_non_terminal * last_gae_lam
             self.advantages[step] = last_gae_lam
         self.returns = self.advantages + self.values
+        print("returns", self.returns.device)
 
     def add(
         self, obs: th.Tensor, action: th.Tensor, reward: th.Tensor, done: th.Tensor, value: th.Tensor, log_prob: th.Tensor
@@ -369,8 +370,11 @@ class RolloutBuffer(BaseBuffer):
         self.actions[self.pos] = action
         self.rewards[self.pos] = reward
         self.dones[self.pos] = done
-        self.values[self.pos] = value.clone().flatten().to(self.device)
-        self.log_probs[self.pos] = log_prob.clone().to(self.device)
+        self.values[self.pos] = value.clone().flatten()
+        self.log_probs[self.pos] = log_prob.clone()
+        print("observations each:", f"{[t.device for t in self.observations]}")
+        print("observations:", f"{self.observations.device}"))
+
         self.pos += 1
         if self.pos == self.buffer_size:
             self.full = True

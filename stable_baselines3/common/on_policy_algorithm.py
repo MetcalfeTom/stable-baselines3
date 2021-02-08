@@ -155,8 +155,11 @@ class OnPolicyAlgorithm(BaseAlgorithm):
 
             with th.no_grad():
                 # Convert to pytorch tensor
-                obs_tensor = th.as_tensor(self._last_obs).to(self.device)
+                obs_tensor = self._last_obs
                 actions, values, log_probs = self.policy.forward(obs_tensor)
+
+            print("actions", actions.device)
+            print("logprobs", log_probs.device)
             # Rescale and perform action
             clipped_actions = actions
 
@@ -183,13 +186,15 @@ class OnPolicyAlgorithm(BaseAlgorithm):
             if isinstance(self.action_space, gym.spaces.Discrete):
                 # Reshape in case of discrete action
                 actions = actions.reshape(-1, 1)
+
+                print("Actions device", actions.device)
             rollout_buffer.add(self._last_obs, actions, rewards, self._last_dones, values, log_probs)
             self._last_obs = new_obs
             self._last_dones = dones
 
         with th.no_grad():
             # Compute value for the last timestep
-            obs_tensor = th.as_tensor(new_obs).to(self.device)
+            obs_tensor = new_obs
             _, values, _ = self.policy.forward(obs_tensor)
 
         rollout_buffer.compute_returns_and_advantage(last_values=values, dones=dones)

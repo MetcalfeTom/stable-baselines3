@@ -1,5 +1,6 @@
 import numpy as np
 from gym import spaces
+import torch as th
 
 from stable_baselines3.common.preprocessing import is_image_space
 from stable_baselines3.common.vec_env.base_vec_env import VecEnv, VecEnvStepReturn, VecEnvWrapper
@@ -33,7 +34,7 @@ class VecTransposeImage(VecEnvWrapper):
         return spaces.Box(low=0, high=255, shape=new_shape, dtype=observation_space.dtype)
 
     @staticmethod
-    def transpose_image(image: np.ndarray) -> np.ndarray:
+    def transpose_image(image: th.Tensor) -> th.Tensor:
         """
         Transpose an image or batch of images (re-order channels).
 
