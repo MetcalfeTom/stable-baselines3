@@ -117,6 +117,7 @@ class PPO(OnPolicyAlgorithm):
                 spaces.MultiDiscrete,
                 spaces.MultiBinary,
             ),
+            monitor_wrapper=False
         )
         if self.env is not None:
             # Check that `n_steps * n_envs > 1` to avoid NaN
