@@ -105,10 +105,10 @@ class DummyVecEnv(VecEnv):
         self.buf_obs[0][env_idx] = obs
 
     def _obs_from_buf(self) -> VecEnvObs:
-        d = dict_to_obs(self.observation_space, copy_obs_dict(self.buf_obs))
-        if isinstance(d, np.ndarray):
-            d = torch.from_numpy(d)
-        return d
+        # d = dict_to_obs(self.observation_space, copy_obs_dict(self.buf_obs))
+        # if isinstance(d, np.ndarray):
+        #     d = torch.from_numpy(d)
+        return self.buf_obs
 
     def get_attr(self, attr_name: str, indices: VecEnvIndices = None) -> List[Any]:
         """Return attribute from vectorized environment (see base class)."""
