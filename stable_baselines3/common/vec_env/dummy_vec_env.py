@@ -5,6 +5,7 @@ from typing import Any, Callable, List, Optional, Sequence, Type, Union
 import gym
 import numpy as np
 import torch
+import os
 
 from stable_baselines3.common.vec_env.base_vec_env import VecEnv, VecEnvIndices, VecEnvObs, VecEnvStepReturn
 from stable_baselines3.common.vec_env.util import copy_obs_dict, dict_to_obs, obs_space_info
@@ -29,19 +30,10 @@ class DummyVecEnv(VecEnv):
         obs_space = env.observation_space
         self.keys, shapes, dtypes = obs_space_info(obs_space)
 
-        device = "cuda" if torch.cuda.is_available() else "cpu"
+        device = os.getenv("CUDA")
 
-        self.buf_obs = OrderedDict(
-            [
-                (
-                    k,
-                    torch.from_numpy(
-                        np.zeros((self.num_envs,) + tuple(shapes[k]), dtype=dtypes[k])
-                    ).to(device),
-                )
-                for k in self.keys
-            ]
-        )
+        self.buf_obs = torch.zeros((1,) + (self.num_envs,) + tuple(obs_space.shape)).to(device)
+
         self.buf_dones = torch.zeros((self.num_envs,), dtype=torch.bool).to(device)
         self.buf_rews = torch.zeros((self.num_envs,), dtype=torch.float32).to(device)
         self.buf_infos = [{} for _ in range(self.num_envs)]
@@ -110,11 +102,7 @@ class DummyVecEnv(VecEnv):
     def _save_obs(self, env_idx: int, obs: VecEnvObs) -> None:
         if isinstance(obs, np.ndarray):
             obs = torch.from_numpy(obs)
-        for key in self.keys:
-            if key is None:
-                self.buf_obs[key][env_idx] = obs
-            else:
-                self.buf_obs[key][env_idx] = obs[key]
+        self.buf_obs[0][env_idx] = obs
 
     def _obs_from_buf(self) -> VecEnvObs:
         d = dict_to_obs(self.observation_space, copy_obs_dict(self.buf_obs))
