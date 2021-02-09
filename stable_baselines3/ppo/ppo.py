@@ -240,7 +240,6 @@ class PPO(OnPolicyAlgorithm):
                 th.nn.utils.clip_grad_norm_(self.policy.parameters(), self.max_grad_norm)
                 self.policy.optimizer.step()
                 approx_kl_divs.append(th.mean(rollout_data.old_log_prob - log_prob).detach().cpu().numpy())
-                print("here")
 
             all_kl_divs.append(np.mean(approx_kl_divs))
 
@@ -266,6 +265,8 @@ class PPO(OnPolicyAlgorithm):
         logger.record("train/clip_range", clip_range)
         if self.clip_range_vf is not None:
             logger.record("train/clip_range_vf", clip_range_vf)
+
+        print(np.mean(entropy_losses))
 
     def learn(
         self,
