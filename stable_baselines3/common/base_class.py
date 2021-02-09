@@ -381,7 +381,7 @@ class BaseAlgorithm(ABC):
         # Avoid resetting the environment when calling ``.learn()`` consecutive times
         if reset_num_timesteps or self._last_obs is None:
             self._last_obs = self.env.reset()
-            self._last_dones = self._last_obs
+            self._last_dones = self.env.done
             # Retrieve unnormalized observation for saving into the buffer
             # if self._vec_normalize_env is not None:
             #     self._last_original_obs = self._vec_normalize_env.get_original_obs()
