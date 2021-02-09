@@ -90,6 +90,7 @@ class PPO(OnPolicyAlgorithm):
         seed: Optional[int] = None,
         device: Union[th.device, str] = "auto",
         _init_setup_model: bool = True,
+        monitor_wrapper: bool = False,
     ):
 
         super(PPO, self).__init__(
@@ -117,6 +118,7 @@ class PPO(OnPolicyAlgorithm):
                 spaces.MultiDiscrete,
                 spaces.MultiBinary,
             ),
+            monitor_wrapper=monitor_wrapper
         )
         if self.env is not None:
             # Check that `n_steps * n_envs > 1` to avoid NaN

@@ -88,6 +88,7 @@ class OnPolicyAlgorithm(BaseAlgorithm):
             seed=seed,
             tensorboard_log=tensorboard_log,
             supported_action_spaces=supported_action_spaces,
+            monitor_wrapper=monitor_wrapper
         )
 
         self.n_steps = n_steps
@@ -157,8 +158,6 @@ class OnPolicyAlgorithm(BaseAlgorithm):
                 # Convert to pytorch tensor
                 obs_tensor = th.as_tensor(self._last_obs).to(self.device)
                 actions, values, log_probs = self.policy.forward(obs_tensor)
-            actions = actions.cpu().numpy()
-
             # Rescale and perform action
             clipped_actions = actions
             # Clip the actions to avoid out of bound error
