@@ -148,7 +148,7 @@ class BaseAlgorithm(ABC):
         self.env = env
         self.observation_space = env.observation_space
         self.action_space = env.action_space
-        self.n_envs = 1
+        self.n_envs = env.env_count
 
         # Create and wrap the env if needed
         if False:
