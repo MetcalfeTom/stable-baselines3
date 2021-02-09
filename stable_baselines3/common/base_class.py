@@ -145,9 +145,13 @@ class BaseAlgorithm(ABC):
         self.ep_success_buffer = None  # type: Optional[deque]
         # For logging
         self._n_updates = 0  # type: int
+        self.env = env
+        self.observation_space = env.observation_space
+        self.action_space = env.action_space
+        self.n_envs = 1
 
         # Create and wrap the env if needed
-        if env is not None:
+        if False:
             if isinstance(env, str):
                 if create_eval_env:
                     self.eval_env = maybe_make_env(env, self.verbose)
@@ -377,10 +381,10 @@ class BaseAlgorithm(ABC):
         # Avoid resetting the environment when calling ``.learn()`` consecutive times
         if reset_num_timesteps or self._last_obs is None:
             self._last_obs = self.env.reset()
-            self._last_dones = th.zeros((self.env.num_envs,), dtype=th.bool)
+            self._last_dones = self._last_obs[2]
             # Retrieve unnormalized observation for saving into the buffer
-            if self._vec_normalize_env is not None:
-                self._last_original_obs = self._vec_normalize_env.get_original_obs()
+            # if self._vec_normalize_env is not None:
+            #     self._last_original_obs = self._vec_normalize_env.get_original_obs()
 
         if eval_env is not None and self.seed is not None:
             eval_env.seed(self.seed)
@@ -441,9 +445,9 @@ class BaseAlgorithm(ABC):
         """
         # if it is not a VecEnv, make it a VecEnv
         # and do other transformations (dict obs, image transpose) if needed
-        env = self._wrap_env(env, self.verbose)
-        # Check that the observation spaces match
-        check_for_correct_spaces(env, self.observation_space, self.action_space)
+        # env = self._wrap_env(env, self.verbose)
+        # # Check that the observation spaces match
+        # check_for_correct_spaces(env, self.observation_space, self.action_space)
 
         self.n_envs = env.num_envs
         self.env = env

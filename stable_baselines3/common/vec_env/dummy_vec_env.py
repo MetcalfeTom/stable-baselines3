@@ -46,22 +46,14 @@ class DummyVecEnv(VecEnv):
         self.actions = actions
 
     def step_wait(self) -> VecEnvStepReturn:
-        for env_idx in range(self.num_envs):
-            obs, self.buf_rews[env_idx], self.buf_dones[env_idx], self.buf_infos[env_idx] = self.envs[env_idx].step(
-                self.actions[env_idx]
-            )
-            if self.buf_dones[env_idx]:
-                # save final observation where user can get it, then reset
-                self.buf_infos[env_idx]["terminal_observation"] = obs
-                obs = self.envs[env_idx].reset()
+        obs, self.buf_rews, self.buf_dones, self.buf_infos = self.envs[0].step(
+            actions
+        )
+        if torch.all(self.buf_dones):
+            obs = self.envs[0].reset()
 
-            if isinstance(obs, np.ndarray):
-                if not self.logged_error:
-                    print("ndarray passed")
-                    self.logged_error = True
-                obs = torch.from_numpy(obs)
-            self._save_obs(env_idx, obs)
-        return (self._obs_from_buf(), deepcopy(self.buf_rews), deepcopy(self.buf_dones), deepcopy(self.buf_infos))
+        return obs, self.buf_rews, self.buf_dones, self.buf_infos
+
 
     def seed(self, seed: Optional[int] = None) -> List[Union[None, int]]:
         seeds = list()
@@ -70,10 +62,7 @@ class DummyVecEnv(VecEnv):
         return seeds
 
     def reset(self) -> VecEnvObs:
-        for env_idx in range(self.num_envs):
-            obs = self.envs[env_idx].reset()
-            self._save_obs(env_idx, obs)
-        return self._obs_from_buf()
+        return self.envs[0].reset()
 
     def close(self) -> None:
         for env in self.envs:

@@ -122,6 +122,7 @@ class PPO(OnPolicyAlgorithm):
         if self.env is not None:
             # Check that `n_steps * n_envs > 1` to avoid NaN
             # when doing advantage normalization
+            self.env.num_envs = 1
             buffer_size = self.env.num_envs * self.n_steps
             assert (
                 buffer_size > 1
@@ -178,6 +179,7 @@ class PPO(OnPolicyAlgorithm):
             approx_kl_divs = []
             # Do a complete pass on the rollout buffer
             for rollout_data in self.rollout_buffer.get(self.batch_size):
+
                 actions = rollout_data.actions
                 if isinstance(self.action_space, spaces.Discrete):
                     # Convert discrete action from float to long
