@@ -106,6 +106,8 @@ def evaluate_policy(
             episode_rewards.append(episode_reward)
             episode_lengths.append(episode_length)
 
+    episode_rewards = th.tensor(episode_rewards)
+
     mean_reward = th.mean(episode_rewards).item()
     std_reward = th.std(episode_rewards).item()
     if reward_threshold is not None:
