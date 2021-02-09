@@ -380,6 +380,7 @@ class BaseAlgorithm(ABC):
 
         # Avoid resetting the environment when calling ``.learn()`` consecutive times
         if reset_num_timesteps or self._last_obs is None:
+            print(self.env.reset)
             self._last_obs = self.env.reset()
             print(self._last_obs)
             self._last_dones = self._last_obs[2]
