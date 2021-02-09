@@ -403,6 +403,7 @@ class BaseAlgorithm(ABC):
         :param infos:
         """
         if dones is None:
+            dones = th.BoolTensor([False] * len(infos))
         for idx, info in enumerate(infos):
             maybe_ep_info = info.get("episode")
             maybe_is_success = info.get("is_success")
