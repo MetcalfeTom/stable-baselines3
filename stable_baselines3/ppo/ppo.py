@@ -246,7 +246,6 @@ class PPO(OnPolicyAlgorithm):
             if self.target_kl is not None and np.mean(approx_kl_divs) > 1.5 * self.target_kl:
                 print(f"Early stopping at step {epoch} due to reaching max kl: {np.mean(approx_kl_divs):.2f}")
                 break
-        print("yep")
         self._n_updates += self.n_epochs
         explained_var = explained_variance(self.rollout_buffer.values.flatten(), self.rollout_buffer.returns.flatten())
 
@@ -265,8 +264,6 @@ class PPO(OnPolicyAlgorithm):
         logger.record("train/clip_range", clip_range)
         if self.clip_range_vf is not None:
             logger.record("train/clip_range_vf", clip_range_vf)
-
-        print(np.mean(entropy_losses))
 
     def learn(
         self,
