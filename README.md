@@ -1,4 +1,4 @@
-# This is my GPU-optimzed fork of stable-baselines3
+# This is my GPU-optimized fork of stable-baselines3
 
 Hello 👋
 
