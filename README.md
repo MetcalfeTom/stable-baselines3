@@ -1,3 +1,26 @@
+# This is my GPU-optimzed fork of stable-baselines3
+
+Hello 👋
+
+This repo contains numerous edits to the stable-baselines3 code in order to allow agent training 
+on environments which exclusively use PyTorch tensors.
+
+The aim is to benchmark the performance of model training on GPUs when using environments which 
+are inherently vectorized, rather than wrapped in a dummy vector environment.
+
+The root file `./benchmark_gpu.py` is a runnable script which uses a vectorized cartpole environment and 
+a modified version of the PPO policy from stable-baselines to train an agent on shared tensors.  This file needs to 
+be run with GPU access.
+
+Feel free to leave any comments or questions on the Issue board.  Contributions will also be reviewed if you have 
+something to edit.  I don't have intentions of developing more for this repo for now, but let's see :)
+
+Here's my benchmark performance:
+
+[](./benchmark.png)
+
+---
+
 <img src="docs/\_static/img/logo.png" align="right" width="40%"/>
 
 [![pipeline status](https://gitlab.com/araffin/stable-baselines3/badges/master/pipeline.svg)](https://gitlab.com/araffin/stable-baselines3/-/commits/master) [![Documentation Status](https://readthedocs.org/projects/stable-baselines/badge/?version=master)](https://stable-baselines3.readthedocs.io/en/master/?badge=master) [![coverage report](https://gitlab.com/araffin/stable-baselines3/badges/master/coverage.svg)](https://gitlab.com/araffin/stable-baselines3/-/commits/master)

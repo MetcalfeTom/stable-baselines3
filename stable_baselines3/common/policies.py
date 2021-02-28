@@ -262,8 +262,10 @@ class BasePolicy(BaseModel):
         #     mask = [False for _ in range(self.n_envs)]
         if isinstance(observation, dict):
             observation = ObsDictWrapper.convert_dict(observation)
-        else:
-            observation = np.array(observation)
+        elif isinstance(observation, np.ndarray):
+            observation = th.from_numpy(observation)
+
+        observation = observation.to(self.device)
 
         # Handle the different cases for images
         # as PyTorch use channel first format
@@ -283,11 +285,10 @@ class BasePolicy(BaseModel):
 
         observation = observation.reshape((-1,) + self.observation_space.shape)
 
-        observation = th.as_tensor(observation).to(self.device)
         with th.no_grad():
             actions = self._predict(observation, deterministic=deterministic)
         # Convert to numpy
-        actions = actions.cpu().numpy()
+        # actions = actions.cpu().numpy()
 
         if isinstance(self.action_space, gym.spaces.Box):
             if self.squash_output:
@@ -296,7 +297,7 @@ class BasePolicy(BaseModel):
             else:
                 # Actions could be on arbitrary scale, so clip the actions to avoid
                 # out of bound error (e.g. if sampling from a Gaussian distribution)
-                actions = np.clip(actions, self.action_space.low, self.action_space.high)
+                actions = th.clip(actions, self.action_space.low, self.action_space.high)
 
         if not vectorized_env:
             if state is not None:

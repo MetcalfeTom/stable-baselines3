@@ -90,6 +90,7 @@ class PPO(OnPolicyAlgorithm):
         seed: Optional[int] = None,
         device: Union[th.device, str] = "auto",
         _init_setup_model: bool = True,
+        monitor_wrapper: bool = False,
     ):
 
         super(PPO, self).__init__(
@@ -117,6 +118,7 @@ class PPO(OnPolicyAlgorithm):
                 spaces.MultiDiscrete,
                 spaces.MultiBinary,
             ),
+            monitor_wrapper=monitor_wrapper
         )
         if self.env is not None:
             # Check that `n_steps * n_envs > 1` to avoid NaN
@@ -244,7 +246,6 @@ class PPO(OnPolicyAlgorithm):
             if self.target_kl is not None and np.mean(approx_kl_divs) > 1.5 * self.target_kl:
                 print(f"Early stopping at step {epoch} due to reaching max kl: {np.mean(approx_kl_divs):.2f}")
                 break
-
         self._n_updates += self.n_epochs
         explained_var = explained_variance(self.rollout_buffer.values.flatten(), self.rollout_buffer.returns.flatten())
 
