@@ -17,7 +17,9 @@ something to edit.  I don't have intentions of developing more for this repo for
 
 Here's my benchmark performance:
 
-[](./benchmark.png)
+![](benchmark.png)
+
+
 
 ---
 
