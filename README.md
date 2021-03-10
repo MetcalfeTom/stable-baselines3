@@ -13,7 +13,7 @@ a modified version of the PPO policy from stable-baselines to train an agent on 
 be run with GPU access.
 
 Feel free to leave any comments or questions on the Issue board.  Contributions will also be reviewed if you have 
-something to edit.  I don't have intentions of developing more for this repo for now, but let's see :)
+something to add or edit.
 
 Here's my benchmark performance:
 
